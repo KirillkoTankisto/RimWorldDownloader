@@ -1,8 +1,8 @@
 import json
 import os
+import re
 import shutil
 import subprocess
-import re
 
 while True:
     settings_path = os.path.join(os.path.dirname(__file__), "settings.json")
@@ -31,9 +31,9 @@ while True:
             json.dump(config, settings_file, indent=4)
         print("Всё настроено!")
 
-    mod_folder = config.get("mod_folder")
+    mod_folder = config.get("mod_folder").replace("\\", "/")
     steamcmd_folder = config.get("steamcmd_folder")
-    steamcmd_folder_mods = steamcmd_folder + "/steamapps/workshop/content/294100/"
+    steamcmd_folder_mods = steamcmd_folder.replace("\\", "/") + "/steamapps/workshop/content/294100/"
     command = ""
     download_one = False
     update_all = False
@@ -44,14 +44,14 @@ while True:
 
     while True:
         print("Скачать один мод, обновить все или удалить все моды?(1 или 2 или 3)")
-        answer = int(input())
-        if answer == 1:
+        answer = input()
+        if answer == "1":
             download_one = True
             break
-        if answer == 2:
+        if answer == "2":
             update_all = True
             break
-        if answer == 3:
+        if answer == "3":
             del_all = True
             break
 
@@ -64,7 +64,7 @@ while True:
                 match = re.search(pattern, workshop_id)
                 if match:
                     workshop_id = match.group(1)
-                steamcmd_download = "steamcmd_folder" + f"/steamcmd.exe +login anonymous +workshop_download_item 294100 {workshop_id} validate +quit"
+                steamcmd_download = steamcmd_folder + f"/steamcmd.exe +login anonymous +workshop_download_item 294100 {workshop_id} validate +quit"
                 subprocess.call(steamcmd_download, shell=True)
                 shutil.copytree(steamcmd_folder_mods + workshop_id, mod_folder + "/" + workshop_id)
                 print("Мод успешно установлен")
@@ -73,31 +73,30 @@ while True:
                 print("Неверное значение")
 
     if update_all:
-        for index in modlist:
-            command += " +workshop_download_item 294100 " + index + " validate"
-        steamcmd_update = "steamcmd_folder" + f"/steamcmd.exe +login anonymous {command} +quit"
-        subprocess.call(steamcmd_update, shell=True)
+        if not modlist:
+            print("Модов нет")
+        else:
+            for index in modlist:
+                command += " +workshop_download_item 294100 " + index + " validate"
+            steamcmd_update = steamcmd_folder + f"/steamcmd.exe +login anonymous {command} +quit"
+            subprocess.call(steamcmd_update, shell=True)
 
-        print("Моды скачаны, идёт установка...")
-        for item in modlist:
-            item_path = os.path.join(mod_folder, item)
-            shutil.rmtree(item_path)
+            print("Моды скачаны, идёт установка...")
+            for item in modlist:
+                item_path = mod_folder + "/" + item
+                shutil.rmtree(item_path)
 
-        if os.path.exists(steamcmd_folder_mods):
-            entries = os.listdir(steamcmd_folder_mods)
-            for entry in entries:
-                source_path = os.path.join(steamcmd_folder_mods, entry)
-                destination_path = os.path.join(mod_folder, entry)
-                if os.path.isdir(source_path):
-                    shutil.copytree(source_path, destination_path)
-                else:
-                    shutil.copy2(source_path, destination_path)
-        print("Моды обновлены")
+            if os.path.exists(steamcmd_folder_mods):
+                for index in modlist:
+                    source_path = os.path.join(steamcmd_folder_mods, index)
+                    destination_path = os.path.join(mod_folder, index)
+                    if os.path.isdir(source_path):
+                        shutil.copytree(source_path, destination_path)
+                    else:
+                        shutil.copy2(source_path, destination_path)
+            print("Моды обновлены")
 
     if del_all:
-        for item in modlist:
-            item_path = os.path.join(steamcmd_folder_mods, item)
-            shutil.rmtree(item_path)
         for item in modlist:
             item_path = os.path.join(mod_folder, item)
             shutil.rmtree(item_path)
