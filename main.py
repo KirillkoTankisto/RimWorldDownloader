@@ -41,6 +41,7 @@ while True:
     os.makedirs(mod_folder, exist_ok=True)
     os.makedirs(steamcmd_folder, exist_ok=True)
     modlist = os.listdir(mod_folder)
+    modlist = [item for item in modlist if item.isdigit()]
 
     while True:
         print("Скачать один мод, обновить все или удалить все моды?(1 или 2 или 3)")
@@ -101,3 +102,4 @@ while True:
             item_path = os.path.join(mod_folder, item)
             shutil.rmtree(item_path)
         print("Моды удалены")
+        
