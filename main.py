@@ -60,7 +60,7 @@ while True:
         while True:
             print("Введите ссылку на мод")
             workshop_id = input()
-            if "https://steamcommunity.com/sharedfiles/filedetails/?id=" in workshop_id:
+            if "https://steamcommunity.com/sharedfiles/filedetails/?id=" in workshop_id or "https://steamcommunity.com/workshop/filedetails/?id=":
                 pattern = r'id=(\d+)'
                 match = re.search(pattern, workshop_id)
                 if match:
