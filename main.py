@@ -67,6 +67,8 @@ while True:
                     workshop_id = match.group(1)
                 steamcmd_download = steamcmd_folder + f"/steamcmd.exe +login anonymous +workshop_download_item 294100 {workshop_id} validate +quit"
                 subprocess.call(steamcmd_download, shell=True)
+                if workshop_id in modlist:
+                    shutil.rmtree(mod_folder + "/" + workshop_id)
                 shutil.copytree(steamcmd_folder_mods + workshop_id, mod_folder + "/" + workshop_id)
                 print("Мод успешно установлен")
                 break
@@ -102,4 +104,3 @@ while True:
             item_path = os.path.join(mod_folder, item)
             shutil.rmtree(item_path)
         print("Моды удалены")
-        
